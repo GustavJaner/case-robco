@@ -5,27 +5,53 @@ set positional-arguments # Recipe arguments will be passed as positional argumen
 # -o pipefail If any command in a pipeline fails, that return code will be used as the return code of the whole pipeline.
 set shell := ["bash", "-euco", "pipefail"]
 
+JUST_DIR := justfile_directory()
 KUBE_VERSION := "v1.33.1"
 
 # List available recipes.
 default: 
   @just --list --unsorted
 
-foo:
-  @echo "fooooo"
-  echo "foox2"
+##################################################
+### Manage environment for local development
+##################################################
 
-@bar:
-  echo "barrrr"
-  echo "barrrr2"
+# Create local venv and install dependencies.
+configure-env:
+  cd {{JUST_DIR}}
+  poetry config virtualenvs.in-project true # Create the Python virtual environment inside the project’s root directory.
+  poetry env info -n # Print venv info.
+  poetry sync # Synchronize the project’s venv with the locked packages in the poetry.lock file.
+  just create-env-file
 
-posargs a b:
-  echo $0
-  echo $1
-  echo $2
+# Create .env file based on template.
+@create-env-file:
+  cd {{JUST_DIR}} \
+  && [ -z "$(ls .env)" ] && cp .env.template .env || echo ".env already exists"
 
+# Poetry synchronize the project’s venv with the locked packages (Similar to poetry install but also removes packages not tracked in the lock file).
+py-sync *args="":
+    poetry sync {{args}}
 
-setup-env: minikube-start
+# Poetry update all dependencies in poetry.lock to the latest (Respecting the version constraints in the pyproject.toml) and sync venv.
+py-upd *args="--sync":
+    poetry update {{args}}
+
+# Poetry validate pyproject.toml and lock dependencies to the poetry.lock file (Without installing/syncing).
+py-lock:
+    poetry check; poetry check --lock; poetry lock
+
+# Poetry remove lock file and regenerate from pyproject.toml.
+py-lock-rg:
+    poetry lock --regenerate
+
+# Poetry show all dependencies in tree.
+py-show-dep:
+    poetry show --tree
+
+# Run the app locally.
+run-server:
+  PYTHONPATH={{JUST_DIR}} poetry run fastapi dev app/main.py --reload --port 8000; \
 
 clean-up: minikube-cleanup
 

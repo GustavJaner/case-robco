@@ -1,7 +1,8 @@
-# case-robco
+# Case: RobCo
 Cloud application tech case challenge for RobCo.
 
 ## Instructions
+
 ### Requirements
 1. [Python](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python) v3.13
 2. [Poetry](https://python-poetry.org/docs/#installation) v2.1 (Python package and dependency manager)
@@ -42,6 +43,7 @@ For quality assurance, a couple of tools are set up already. To install pre-comm
 Test locally, then commit. Pre-commit tests are run locally.
 
 ## Notes
+
 ### Assumptions & Tradeoffs
 - todo:)
 
