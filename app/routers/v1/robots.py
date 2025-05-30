@@ -3,12 +3,12 @@
 # ○ POST /robots – addsanewrobot.
 # ○ PATCH /robot – updatesarobotdata.
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.schemas.robot import Robot
-# from app.models import RobotModel
-# from app.database import SessionLocal
+from app.models.robot import RobotModel
+from app.database import SessionLocal
 
 robots = [] # Temporary robots list.
 
@@ -18,23 +18,31 @@ router = APIRouter(
   responses={404: {"description": "Not found"}},
 )
 
-# def get_db():
-#   db = SessionLocal()
-#   try:
-#     yield db
-#   finally:
-#     db.close()
+# Dependency to get DB session
+def get_db():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
 
 @router.post("/robots", description="Create new robot.")
-def create_robot(robot: Robot):
-  robots.append(robot)
+async def create_robot(robot: Robot, db: Session = Depends(get_db)):
+  # robots.append(robot)
+  db_robot = RobotModel(**robot.dict())
+  db.add(db_robot)
+  db.commit()
+  db.refresh(db_robot)
   return JSONResponse(
     status_code=status.HTTP_200_OK,
     content={"status": "ok", "new robot": robot.model_dump()},
   )
 
 @router.get("/robots", description="Get robots.")
-def read_robots():
+def read_robots(db: Session = Depends(get_db)):
+  # db.query(Robot).filter(Robot.id == robot_id).first()
+  robots = db.query(Robot).filter(Robot.id == robot_id).first()
+
   return JSONResponse(
     status_code=status.HTTP_200_OK,
     content={"status": "ok", "robots": [r.model_dump() for r in robots]},

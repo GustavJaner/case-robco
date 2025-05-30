@@ -7,11 +7,22 @@ from fastapi import FastAPI #, Depends, HTTPException, status
 # from starlette.requests import Request
 
 # My own modules
+from app.database import engine, SessionLocal, Base
 from app import Config
 from app.routers.v1 import health, robots
 
 app = FastAPI(debug=Config.DEBUG_MODE)
 # security = HTTPBasic()
+
+# Set up database.
+Base.metadata.create_all(bind=engine)
+
+# def get_db():
+#   db = SessionLocal()
+#   try:
+#     yield db
+#   finally:
+#     db.close()
 
 app.include_router(health.router, prefix="/health")  # Prefix is used to group the endpoints under /health. @router.get("/bar") would become /health/bar.
 app.include_router(robots.router, prefix="/api/v1") # Prefix is used to group the endpoints under /api/v1. @router.get("/bar") would become /api/v1/bar.
