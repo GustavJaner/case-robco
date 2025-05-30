@@ -6,14 +6,15 @@ from fastapi import FastAPI #, Depends, HTTPException, status
 # from fastapi.security import HTTPBasic, HTTPBasicCredentials
 # from starlette.requests import Request
 
+# My own modules
 from app import Config
-from app.routers.v1 import health, foo
+from app.routers.v1 import status, robots
 
 app = FastAPI(debug=Config.DEBUG_MODE)
 # security = HTTPBasic()
 
-app.include_router(health.router, prefix="/health")
-app.include_router(foo.router, prefix="/api/v1")
+app.include_router(status.router, prefix="")
+app.include_router(robots.router, prefix="/api/v1") # Prefix is used to group the endpoints under /api/v1. @router.get("/bar") would become /api/v1/bar.
 
 
 # def is_valid_credentials(

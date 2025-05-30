@@ -16,16 +16,20 @@ default:
 ### Manage environment for local development
 ##################################################
 
-# Create local venv and install dependencies.
-configure-env:
+# Create local Python venv and install dependencies with Poetry.
+py-setup:
   cd {{JUST_DIR}}
   poetry config virtualenvs.in-project true # Create the Python virtual environment inside the project’s root directory.
   poetry env info -n # Print venv info.
   poetry sync # Synchronize the project’s venv with the locked packages in the poetry.lock file.
   just create-env-file
 
+# Run the Python FastAPI server locally.
+py-run-server:
+  PYTHONPATH={{JUST_DIR}} poetry run fastapi dev app/main.py --reload --port 8000; \
+
 # Create .env file based on template.
-@create-env-file:
+@py-create-env-file:
   cd {{JUST_DIR}} \
   && [ -z "$(ls .env)" ] && cp .env.template .env || echo ".env already exists"
 
@@ -49,27 +53,28 @@ py-lock-rg:
 py-show-dep:
     poetry show --tree
 
-# Run the app locally.
-run-server:
-  PYTHONPATH={{JUST_DIR}} poetry run fastapi dev app/main.py --reload --port 8000; \
-
-clean-up: minikube-cleanup
+clean-up: mk-cleanup
 
 ##################################################
 ### Manage minikube cluster
 ##################################################
 
-# Start the minkube cluster.
-minikube-start kube_version=KUBE_VERSION:
+# minkube start cluster instance.
+mk-start kube_version=KUBE_VERSION:
   minikube start --kubernetes-version={{kube_version}}
   docker ps
   kubectl cluster-info
 
-#minikube service hello-minikube
+# minikube pause cluster (Without impacting deployed applications).
+mk-pause:
+  minikube pause
 
+# minikube unpause cluster.
+mk-unpause:
+  minikube unpause
 
-# Stop and delete the minikube cluster.
-minikube-cleanup:
+# minikube stop and delete cluster.
+mk-cleanup:
   minikube stop
   minikube delete
 

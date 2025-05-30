@@ -43,16 +43,22 @@ For quality assurance, a couple of tools are set up already. To install pre-comm
 Test locally, then commit. Pre-commit tests are run locally.
 
 ## Notes
+- What is Uvicorn? Uvicorn is a lightning-fast ASGI (Asynchronous Server Gateway Interface) server implementation, using uvloop and httptools.
+Purpose: It’s primarily used to run asynchronous web applications and frameworks that are compatible with the ASGI specification, such as FastAPI.
+- What is Pydantic? Pydantic is a Python library that uses type annotations to validate data and manage configurations. It enforces type hints at runtime and provides user-friendly errors when data is invalid.
+Key Features: a) Data Validation
+
 
 ### Assumptions & Tradeoffs
 - todo:)
 
 ## TODO
 - [x] Deploy minikube k8s cluster
-- [ ] Test deploy a new namespace with a deployment+pod+svc (dummy image) for the BE+FE
-- [ ] Test build my own Docker image for the BE
-- [ ] Deploy simple python FastAPI BE
+- [x] Test deploy a new namespace with a deployment+pod+svc (dummy image) for the BE+FE
+- [x] Deploy simple python FastAPI BE
+- [ ] Add simple BE routes for adding and listing robots
 - [ ] Deploy simple (Framework: React) FE (web UI)
+- [ ] Test build my own Docker image for the BE
 - [ ] Test initial setup
 - [ ] Setup some svc/ingress to locally access the BE & FE
 - [ ] Deploy Loki
@@ -68,3 +74,4 @@ Q: how to manage the deployments to minikube? Terraform(not so infra heavy proje
 - [ ] Add pre-commit
 - [ ] Automate with GHA
 - [ ] Use OTEL? Standards for logs and metrics, then the logs/metrics backends can be changed later. 
+- [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
