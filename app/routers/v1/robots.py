@@ -5,7 +5,6 @@
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 from app.schemas.robot import Robot
 # from app.models import RobotModel
 # from app.database import SessionLocal
@@ -41,13 +40,14 @@ def read_robots():
   )
 
 @router.put("/robot/{robot_id}", description="Update existing robot.")
-async def update_robot(robot_id: int, updated_robot: Robot):
+async def update_robot(robot_id: int, robot_updated: Robot):
   for index, robot in enumerate(robots):
     if robot.id == robot_id:
-      robots[index] = updated_robot
+      robot_og = robots[index]
+      robots[index] = robot_updated
       return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={"status": "ok", "updated robot": updated_robot.model_dump()},
+        content={"status": "ok", "original robot": robot_og.model_dump(), "updated robot": robot_updated.model_dump()},
       )
   return JSONResponse(
     status_code=status.HTTP_404_NOT_FOUND,

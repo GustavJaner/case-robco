@@ -34,23 +34,23 @@ py-run-server:
   && [ -z "$(ls .env)" ] && cp .env.template .env || echo ".env already exists"
 
 # Poetry synchronize the project’s venv with the locked packages (Similar to poetry install but also removes packages not tracked in the lock file).
-py-sync *args="":
+py-dep-sync *args="":
     poetry sync {{args}}
 
 # Poetry update all dependencies in poetry.lock to the latest (Respecting the version constraints in the pyproject.toml) and sync venv.
-py-upd *args="--sync":
+py-dep-upd *args="--sync":
     poetry update {{args}}
 
 # Poetry validate pyproject.toml and lock dependencies to the poetry.lock file (Without installing/syncing).
-py-lock:
+py-dep-lock:
     poetry check; poetry check --lock; poetry lock
 
 # Poetry remove lock file and regenerate from pyproject.toml.
-py-lock-rg:
+py-dep-lock-rg:
     poetry lock --regenerate
 
 # Poetry show all dependencies in tree.
-py-show-dep:
+py-dep-show:
     poetry show --tree
 
 clean-up: mk-cleanup
