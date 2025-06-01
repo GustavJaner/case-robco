@@ -69,6 +69,12 @@ py-test-cov path="app/tests":
 	poetry run coverage report -m && \
 	poetry run coverage html --skip-empty
 
+re-npm-install:
+  cd "{{JUST_DIR}}/react-fe" && npm install
+
+re-test:
+  cd "{{JUST_DIR}}/react-fe" && npm test
+
 # npm start the React frontend development server locally.
 re-run-fe:
   cd "{{JUST_DIR}}/react-fe" && npm start

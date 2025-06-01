@@ -58,7 +58,7 @@ Key Features: a) Data Validation
 - [x] Deploy simple python FastAPI BE
 - [x] Add simple BE routes for adding and listing robots
 - [x] Deploy simple (Framework: React) FE (web UI)
-- [ ] Setup basic tests
+- [x] Setup basic tests
 - [ ] Test build my own Docker image for the BE
 - [ ] Test initial setup
 - [ ] Setup some svc/ingress to locally access the BE & FE
