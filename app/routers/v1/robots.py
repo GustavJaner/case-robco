@@ -1,7 +1,7 @@
 # REST API:
-# ○ GET /robots – returnsrobotswithsomemockrobotstatus.
-# ○ POST /robots – addsanewrobot.
-# ○ PATCH /robot – updatesarobotdata.
+# ○ GET /robots – returns robots with some mock robot status.
+# ○ POST /robots – adds a new robot.
+# ○ PATCH /robot – updates a robot data.
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -30,15 +30,27 @@ def create_robot(robot_new: RobotCreate):
   robot = Robot.model_validate(robot_new) # Validate and convert the RobotCreate object to a Robot object (Adding the ID field).
   robots[robot.id] = robot
   return JSONResponse(
-    status_code=status.HTTP_200_OK,
-    content={"status": "ok", "robot_new": robot.model_dump()},
+    status_code = status.HTTP_200_OK,
+    content = {
+      "status": "ok",
+      "message": f"Robot with ID={robot.id} created successfully",
+      "data": {
+        "robot_new": robot.model_dump(),
+      },
+    },
   )
 
 @router.get("/robots", description="Get robots")
 def read_robots():
   return JSONResponse(
-    status_code=status.HTTP_200_OK,
-    content={"status": "ok", "robots": [r.model_dump() for r in robots.values()]},
+    status_code = status.HTTP_200_OK,
+    content = {
+      "status": "ok",
+      "message": "Robots retrieved successfully",
+      "data": {
+        "robots": [r.model_dump() for r in robots.values()],
+      },
+    },
   )
 
 @router.put("/robot/{robot_id}", description="Update existing robot")
@@ -53,13 +65,23 @@ async def update_robot(robot_id: str, robot_updated_config: RobotCreate):
     robot_to_update.status = robot_updated_config.status
     robot_to_update.description = robot_updated_config.description
     return JSONResponse(
-      status_code=status.HTTP_200_OK,
-      content={"status": "ok", "robot_original_config": robot_original_config.model_dump(), "robot_updated": robots[robot_id].model_dump()},
+      status_code = status.HTTP_200_OK,
+      content = {
+        "status": "ok",
+        "message": f"Robot with ID={robot_id} updated successfully",
+        "data": {
+          "robot_original_config": robot_original_config.model_dump(),
+          "robot_updated": robots[robot_id].model_dump(),
+        },
+      },
     )
 
   # If the robot with the given ID does not exist, return a 404 error.
   else:
     return JSONResponse(
-      status_code=status.HTTP_404_NOT_FOUND,
-      content={"error": f"Robot with id {robot_id} not found"},
+      status_code = status.HTTP_404_NOT_FOUND,
+      content = {
+        "status": "error",
+        "error": f"Robot with ID={robot_id} not found",
+      },
     )
