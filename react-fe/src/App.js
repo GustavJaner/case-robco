@@ -12,16 +12,25 @@ const defaultFormData = {
   description: '',
 };
 
+const defaultUpdateFormData = {
+  name: '',
+  type: '',
+  status: '',
+  description: '',
+};
+
 const App = () => {
+  const [error, setStateError] = useState(null); // State to hold error messages.
   const [robots, setStateRobots] = useState([]); // State to hold the list of current robots. setStateRobots is the function to update this state.
   const [formData, setStateFormData] = useState(defaultFormData);
-  const [error, setStateError] = useState(null); // State to hold error messages.
+  const [updateFormData, setStateUpdateFormData] = useState(defaultUpdateFormData);
+  const [updateError, setUpdateError] = useState(null);
 
   const fetchRobots = async () => {
     try {
       const response = await api.get('/api/v1/robots'); // Fetch robots from the BE API.
       setStateRobots(response.data.data.robots || []); // Update the robots state.
-      setStateError(null); // Clear any previous error
+      setStateError(null); // Clear any previous error.
     } catch (err) {
       setStateError(err.response?.data?.error || err.message || 'Failed to fetch robots.');
     }
@@ -45,9 +54,40 @@ const App = () => {
       await api.post('/api/v1/robots', formData); // Post the form data to the BE API to create a new robot.
       fetchRobots(); // Fetch the updated list of robots after form submission.
       setStateFormData(defaultFormData); // Reset the form data to default after submission.
-      setStateError(null); // Clear any previous error
+      setStateError(null); // Clear any previous error.
     } catch (err) {
       setStateError(err.response?.data?.error || err.message || 'Failed to add robot.');
+    }
+  };
+
+  const handleUpdateInputChange = (event) => {
+    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+    setStateUpdateFormData({
+      ...updateFormData,
+      [event.target.name]: value,
+    });
+  };
+
+  const handleUpdateFormSubmit = async (event) => {
+    event.preventDefault();
+    if (!updateFormData.id) {
+      setUpdateError('Robot ID is required.');
+      return;
+    }
+
+    const robot_updated_config = {}; // Build payload with only non-empty fields
+    if (updateFormData.name) robot_updated_config.name = updateFormData.name;
+    if (updateFormData.type) robot_updated_config.type = updateFormData.type;
+    if (updateFormData.status) robot_updated_config.status = updateFormData.status;
+    if (updateFormData.description) robot_updated_config.description = updateFormData.description;
+
+    try {
+      await api.patch(`/api/v1/robot/${updateFormData.id}`, robot_updated_config);
+      fetchRobots(); // Fetch the updated list of robots after form submission.
+      setStateUpdateFormData(defaultUpdateFormData);
+      setUpdateError(null); // Clear any previous error.
+    } catch (err) {
+      setUpdateError(err.response?.data?.error || err.message || 'Failed to update robot.');
     }
   };
 
@@ -138,6 +178,97 @@ const App = () => {
                     <div className='col-12'>
                       <Button type='submit' variant='success' className='w-100 rounded-pill shadow-sm fw-bold'>
                         <span role='img' aria-label='robot'>🤖</span> Add Robot
+                      </Button>
+                    </div>
+                  </div>
+                </Form>
+              </div>
+            </div>
+          </div>
+          <div className='col-md-6'>
+            <div className='card shadow rounded-4'>
+              <div className='card-header bg-warning text-dark text-center rounded-top-4'>
+                <h4 className='mb-0'>Update Robot by ID</h4>
+              </div>
+              <div className='card-body bg-light rounded-bottom-4'>
+                {updateError && (
+                  <div className="alert alert-danger rounded-4 shadow-sm text-center" role="alert">
+                    {updateError}
+                  </div>
+                )}
+                <Form onSubmit={handleUpdateFormSubmit}>
+                  <div className='row g-3'>
+                    <div className='col-12'>
+                      <Form.Group controlId='update-id'>
+                        <Form.Label>Robot ID</Form.Label>
+                        <Form.Control
+                          type='text'
+                          name='id'
+                          className='rounded-pill shadow-sm'
+                          value={updateFormData.id}
+                          onChange={handleUpdateInputChange}
+                          required
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Form.Group controlId='update-name'>
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control
+                          type='text'
+                          name='name'
+                          className='rounded-pill shadow-sm'
+                          value={updateFormData.name}
+                          onChange={handleUpdateInputChange}
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Form.Group controlId='update-type'>
+                        <Form.Label>Type</Form.Label>
+                        <Form.Select
+                          name='type'
+                          className='rounded-pill shadow-sm'
+                          value={updateFormData.type}
+                          onChange={handleUpdateInputChange}
+                        >
+                          <option value=''></option>
+                          <option value='foo-bot'>foo-bot</option>
+                          <option value='bar-bot'>bar-bot</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Form.Group controlId='update-status'>
+                        <Form.Label>Status</Form.Label>
+                        <Form.Select
+                          name='status'
+                          className='rounded-pill shadow-sm'
+                          value={updateFormData.status}
+                          onChange={handleUpdateInputChange}
+                        >
+                          <option value=''></option>
+                          <option value='IDLE'>IDLE</option>
+                          <option value='ACTIVE'>ACTIVE</option>
+                          <option value='ERROR'>ERROR</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Form.Group controlId='update-description'>
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control
+                          type='text'
+                          name='description'
+                          className='rounded-pill shadow-sm'
+                          value={updateFormData.description}
+                          onChange={handleUpdateInputChange}
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Button type='submit' variant='warning' className='w-100 rounded-pill shadow-sm fw-bold'>
+                        <span role='img' aria-label='robot'>🔄</span> Update Robot
                       </Button>
                     </div>
                   </div>
