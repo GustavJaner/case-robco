@@ -46,10 +46,10 @@ const App = () => {
   const fetchRobots = async () => {
     try {
       const response = await api.get('/api/v1/robots'); // Fetch robots from the BE API.
-      setStateRobots(response.data.robots || []); // Update the robots state.
+      setStateRobots(response.data.data.robots || []); // Update the robots state.
       setStateError(null); // Clear any previous error
     } catch (err) {
-      setStateError(err.response?.data?.message || err.message || 'Failed to fetch robots.');
+      setStateError(err.response?.data?.error || err.message || 'Failed to fetch robots.');
     }
   };
 
@@ -73,7 +73,7 @@ const App = () => {
       setStateFormData(defaultFormData); // Reset the form data to default after submission.
       setStateError(null); // Clear any previous error
     } catch (err) {
-      setStateError(err.response?.data?.message || err.message || 'Failed to add robot.');
+      setStateError(err.response?.data?.error || err.message || 'Failed to add robot.');
     }
   };
 
@@ -124,14 +124,15 @@ const App = () => {
                     <div className='col-12'>
                       <Form.Group controlId='type'>
                         <Form.Label>Type</Form.Label>
-                        <Form.Control
-                          type='text'
+                        <Form.Select
                           name='type'
                           className='rounded-pill shadow-sm'
-                          value={formData.type}
+                          value={formData.status}
                           onChange={handleInputChange}
-                          required
-                        />
+                        >
+                          <option value='foo-bot'>foo-bot</option>
+                          <option value='bar-bot'>bar-bot</option>
+                        </Form.Select>
                       </Form.Group>
                     </div>
                     <div className='col-12'>
