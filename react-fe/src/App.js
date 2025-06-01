@@ -24,7 +24,6 @@
 
 // export default App;
 
-import logo from './logo.svg';
 import './App.css';
 import React, {useState, useEffect} from 'react'
 import api from './api'
@@ -33,7 +32,6 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
 const defaultFormData = {
-  id: '',
   name: '',
   type: 'foo-bot',
   status: 'IDLE',
@@ -92,20 +90,8 @@ const App = () => {
                 <Form onSubmit={handleFormSubmit}>
                   <div className='row g-3'>
                     <div className='col-12'>
-                      <Form.Group controlId='id'>
-                        <Form.Label>Robot ID</Form.Label>
-                        <Form.Control
-                          type='text'
-                          name='id'
-                          className='rounded-pill shadow-sm'
-                          value={formData.id}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
-                    </div>
-                    <div className='col-12'>
                       <Form.Group controlId='name'>
-                        <Form.Label>Robot name</Form.Label>
+                        <Form.Label>Name</Form.Label>
                         <Form.Control
                           type='text'
                           name='name'
@@ -118,7 +104,7 @@ const App = () => {
                     </div>
                     <div className='col-12'>
                       <Form.Group controlId='type'>
-                        <Form.Label>Robot type</Form.Label>
+                        <Form.Label>Type</Form.Label>
                         <Form.Control
                           type='text'
                           name='type'
@@ -131,7 +117,7 @@ const App = () => {
                     </div>
                     <div className='col-12'>
                       <Form.Group controlId='status'>
-                        <Form.Label>Robot status</Form.Label>
+                        <Form.Label>Status</Form.Label>
                         <Form.Select
                           name='status'
                           className='rounded-pill shadow-sm'
@@ -145,7 +131,7 @@ const App = () => {
                     </div>
                     <div className='col-12'>
                       <Form.Group controlId='description'>
-                        <Form.Label>Robot description</Form.Label>
+                        <Form.Label>Description</Form.Label>
                         <Form.Control
                           type='text'
                           name='description'

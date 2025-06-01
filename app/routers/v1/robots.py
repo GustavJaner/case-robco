@@ -5,11 +5,26 @@
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from app.schemas.robot import Robot
+from app.schemas.robot import Robot, RobotCreate
 # from app.models import RobotModel
 # from app.database import SessionLocal
 
-robots = [] # Temporary robots list.
+# Temporary robot list.
+robots = [
+    Robot(
+        id="295091f5-7c9c-40d8-9578-5fc7ac75fac8",
+        name="R2D2",
+        type="foo-bot",
+        status="ACTIVE",
+        description=""
+    ),
+    Robot.model_validate(RobotCreate(
+        name="C3PO",
+        type="bar-bot",
+        status="IDLE",
+        description="Lorem ipsum"
+    ))
+]
 
 router = APIRouter(
   prefix="", # This prefix is used to group the endpoints under /robots. @router.get("/bar") would become /robots/bar.
@@ -25,7 +40,8 @@ router = APIRouter(
 #     db.close()
 
 @router.post("/robots", description="Create new robot.")
-def create_robot(robot: Robot):
+def create_robot(robot_new: RobotCreate):
+  robot = Robot.model_validate(robot_new) # Validate and convert the RobotCreate object to a Robot object (Adding the ID field).
   robots.append(robot)
   return JSONResponse(
     status_code=status.HTTP_200_OK,
@@ -40,16 +56,20 @@ def read_robots():
   )
 
 @router.put("/robot/{robot_id}", description="Update existing robot.")
-async def update_robot(robot_id: int, robot_updated: Robot):
+async def update_robot(robot_id: int, robot_updated: RobotCreate):
   for index, robot in enumerate(robots):
     if robot.id == robot_id:
       robot_og = robots[index]
-      robots[index] = robot_updated
+      # Update only the editable fields, keeping the original id.
+      robot.name = robot_updated.name
+      robot.type = robot_updated.type
+      robot.status = robot_updated.status
+      robot.description = robot_updated.description
       return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={"status": "ok", "original robot": robot_og.model_dump(), "updated robot": robot_updated.model_dump()},
+        content={"status": "ok", "original robot": robot_og.model_dump(), "updated robot": robots[robot_id].model_dump()},
       )
   return JSONResponse(
     status_code=status.HTTP_404_NOT_FOUND,
-    content={"error": "Robot with id {robot_id} not found"},
+    content={"error": f"Robot with id {robot_id} not found"},
   )
