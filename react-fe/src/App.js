@@ -114,8 +114,8 @@ const App = () => {
       {/* Form Section */}
       <div className='container my-5'>
         <div className='row justify-content-center'>
-          <div className='col-md-6'>
-            <div className='card shadow rounded-4'>
+          <div className='col-md-6 d-flex'>
+            <div className='card shadow rounded-4 flex-fill'>
               <div className='card-header bg-primary text-white text-center rounded-top-4'>
                 <h4 className='mb-0'>Add a New Robot</h4>
               </div>
@@ -141,7 +141,7 @@ const App = () => {
                         <Form.Select
                           name='type'
                           className='rounded-pill shadow-sm'
-                          value={formData.status}
+                          value={formData.type}
                           onChange={handleInputChange}
                         >
                           <option value='foo-bot'>foo-bot</option>
@@ -160,6 +160,7 @@ const App = () => {
                         >
                           <option value='IDLE'>IDLE</option>
                           <option value='ACTIVE'>ACTIVE</option>
+                          <option value='ERROR'>ERROR</option>
                         </Form.Select>
                       </Form.Group>
                     </div>
@@ -175,6 +176,8 @@ const App = () => {
                         />
                       </Form.Group>
                     </div>
+                  </div>
+                  <div className='row g-3 mt-3'>
                     <div className='col-12'>
                       <Button type='submit' variant='success' className='w-100 rounded-pill shadow-sm fw-bold'>
                         <span role='img' aria-label='robot'>🤖</span> Add Robot
@@ -185,8 +188,8 @@ const App = () => {
               </div>
             </div>
           </div>
-          <div className='col-md-6'>
-            <div className='card shadow rounded-4'>
+          <div className='col-md-6 d-flex'>
+            <div className='card shadow rounded-4 flex-fill'>
               <div className='card-header bg-warning text-dark text-center rounded-top-4'>
                 <h4 className='mb-0'>Update Robot by ID</h4>
               </div>
@@ -201,14 +204,20 @@ const App = () => {
                     <div className='col-12'>
                       <Form.Group controlId='update-id'>
                         <Form.Label>Robot ID</Form.Label>
-                        <Form.Control
-                          type='text'
+                        <Form.Select
                           name='id'
                           className='rounded-pill shadow-sm'
-                          value={updateFormData.id}
+                          value={updateFormData.id || ''}
                           onChange={handleUpdateInputChange}
                           required
-                        />
+                        >
+                          <option value=''>Select a robot...</option>
+                          {robots.map((robot) => (
+                            <option key={robot.id} value={robot.id}>
+                              {robot.id}{robot.name ? ` (${robot.name})` : ''}
+                            </option>
+                          ))}
+                        </Form.Select>
                       </Form.Group>
                     </div>
                     <div className='col-12'>
