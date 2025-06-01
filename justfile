@@ -54,6 +54,21 @@ py-dep-lock-rg:
 py-dep-show:
     poetry show --tree
 
+# Run pip-audit (Python dependency vulnerability scanner).
+run-pa:
+    PYTHONPATH={{JUST_DIR}} poetry run pip-audit
+
+# Run tests for the Python FastAPI BE.
+py-test path="app/tests":
+	PYTHONPATH={{JUST_DIR}} poetry run pytest -r A -vs {{path}} --color=yes
+
+# Run tests for the Python FastAPI BE and generate coverage report.
+py-test-cov path="app/tests":
+	PYTHONPATH={{JUST_DIR}} \
+	poetry run coverage run --omit="*/test*,*/.venv/*,*__init__.py" -m pytest -r A -vs {{path}} && \
+	poetry run coverage report -m && \
+	poetry run coverage html --skip-empty
+
 # npm start the React frontend development server locally.
 re-run-fe:
   cd "{{JUST_DIR}}/react-fe" && npm start

@@ -56,8 +56,9 @@ Key Features: a) Data Validation
 - [x] Deploy minikube k8s cluster
 - [x] Test deploy a new namespace with a deployment+pod+svc (dummy image) for the BE+FE
 - [x] Deploy simple python FastAPI BE
-- [ ] Add simple BE routes for adding and listing robots
-- [ ] Deploy simple (Framework: React) FE (web UI)
+- [x] Add simple BE routes for adding and listing robots
+- [x] Deploy simple (Framework: React) FE (web UI)
+- [ ] Setup basic tests
 - [ ] Test build my own Docker image for the BE
 - [ ] Test initial setup
 - [ ] Setup some svc/ingress to locally access the BE & FE

@@ -31,5 +31,6 @@ class RobotCreate(BaseModel):  # Used for validating data when creating a new ro
 
 # The Robot schema extends the base schema and is used for returning robot data.
 class Robot(RobotBase):
-  class Config:
-    from_attributes = True # ORM mode, allows to use attributes from the ORM model directly.
+  model_config = {
+    "from_attributes": True  # ORM mode, allows to use attributes from the ORM model directly.
+  }
