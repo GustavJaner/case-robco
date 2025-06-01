@@ -39,12 +39,18 @@ const defaultFormData = {
 };
 
 const App = () => {
-  const [robots, setRobots] = useState([]); // robots state to hold the list of current robots. setRobots is the function to update this state.
-  const [formData, setFormData] = useState(defaultFormData);
+  const [robots, setStateRobots] = useState([]); // State to hold the list of current robots. setStateRobots is the function to update this state.
+  const [formData, setStateFormData] = useState(defaultFormData);
+  const [error, setStateError] = useState(null); // State to hold error messages.
 
   const fetchRobots = async () => {
-    const response = await api.get('/api/v1/robots'); // Fetch robots from the BE API.
-    setRobots(response.data.robots || []); // Update the robots state.
+    try {
+      const response = await api.get('/api/v1/robots'); // Fetch robots from the BE API.
+      setStateRobots(response.data.robots || []); // Update the robots state.
+      setStateError(null); // Clear any previous error
+    } catch (err) {
+      setStateError(err.response?.data?.message || err.message || 'Failed to fetch robots.');
+    }
   };
 
   useEffect(() => { // React hook to fetch robots when the component mounts (Page load).
@@ -53,7 +59,7 @@ const App = () => {
 
   const handleInputChange = (event) => {
     const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-    setFormData({
+    setStateFormData({
       ...formData,
       [event.target.name]: value,
     });
@@ -61,10 +67,14 @@ const App = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    await api.post('/api/v1/robots', formData); // Post the form data to the BE API to create a new robot.
-    console.log('formData',formData);
-    fetchRobots(); // Fetch the updated list of robots after form submission.
-    setFormData(defaultFormData); // Reset the form data to default after submission.
+    try {
+      await api.post('/api/v1/robots', formData); // Post the form data to the BE API to create a new robot.
+      fetchRobots(); // Fetch the updated list of robots after form submission.
+      setStateFormData(defaultFormData); // Reset the form data to default after submission.
+      setStateError(null); // Clear any previous error
+    } catch (err) {
+      setStateError(err.response?.data?.message || err.message || 'Failed to add robot.');
+    }
   };
 
   return (
@@ -77,6 +87,15 @@ const App = () => {
           </a>
         </div>
       </nav>
+
+      {/* Error Alert */}
+      {error && (
+        <div className="container mb-4">
+          <div className="alert alert-danger rounded-4 shadow-sm text-center" role="alert">
+            {error}
+          </div>
+        </div>
+      )}
 
       {/* Form Section */}
       <div className='container my-5'>
