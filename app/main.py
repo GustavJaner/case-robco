@@ -2,6 +2,8 @@
 # from typing import Annotated
 
 from fastapi import FastAPI #, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+
 # from fastapi.responses import JSONResponse
 # from fastapi.security import HTTPBasic, HTTPBasicCredentials
 # from starlette.requests import Request
@@ -12,6 +14,18 @@ from app.routers.v1 import health, robots
 
 app = FastAPI(debug=Config.DEBUG_MODE)
 # security = HTTPBasic()
+
+# CORS middleware to allow requests from the React FE.
+origins = [
+    "http://localhost:3000"
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 app.include_router(health.router, prefix="/health")  # Prefix is used to group the endpoints under /health. @router.get("/bar") would become /health/bar.
 app.include_router(robots.router, prefix="/api/v1") # Prefix is used to group the endpoints under /api/v1. @router.get("/bar") would become /api/v1/bar.

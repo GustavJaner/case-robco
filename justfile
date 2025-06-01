@@ -16,16 +16,17 @@ default:
 ### Manage environment for local development
 ##################################################
 
-# Create local Python venv and install dependencies with Poetry.
-py-setup:
+# Set up Python BE and React FE for local development.
+setup-local-env:
   cd {{JUST_DIR}}
   poetry config virtualenvs.in-project true # Create the Python virtual environment inside the project’s root directory.
   poetry env info -n # Print venv info.
   poetry sync # Synchronize the project’s venv with the locked packages in the poetry.lock file.
   just create-env-file
+  cd "{{JUST_DIR}}/react-fe" && npm install
 
-# Run the Python FastAPI server locally.
-py-run-server:
+# Python run the FastAPI server locally.
+py-run-be:
   PYTHONPATH={{JUST_DIR}} poetry run fastapi dev app/main.py --reload --port 8000; \
 
 # Create .env file based on template.
@@ -53,6 +54,13 @@ py-dep-lock-rg:
 py-dep-show:
     poetry show --tree
 
+# npm start the React frontend development server locally.
+re-run-fe:
+  cd "{{JUST_DIR}}/react-fe" && npm start
+
+# Note that the development build is not optimized. To create a production build, use npm run build.
+
+# Clean up the local development environment.
 clean-up: mk-cleanup
 
 ##################################################
