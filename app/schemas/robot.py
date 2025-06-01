@@ -29,6 +29,13 @@ class RobotCreate(BaseModel):  # Used for validating data when creating a new ro
   status: RobotStatus
   description: Optional[str] = None
 
+# Used for PATCH requests to update existing robots. All fields are optional, allowing partial updates.
+class RobotUpdate(BaseModel):  # Used for validating data when creating a new robot.
+  name: Optional[str] = None
+  type: Optional[RobotType] = None
+  status: Optional[RobotStatus] = None
+  description: Optional[str] = None
+
 # The Robot schema extends the base schema and is used for returning robot data.
 class Robot(RobotBase):
   model_config = {

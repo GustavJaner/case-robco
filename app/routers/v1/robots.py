@@ -5,7 +5,7 @@
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from app.schemas.robot import Robot, RobotCreate
+from app.schemas.robot import Robot, RobotCreate, RobotUpdate
 # from app.models import RobotModel
 # from app.database import SessionLocal
 
@@ -53,17 +53,17 @@ def read_robots():
     },
   )
 
-@router.put("/robot/{robot_id}", description="Update existing robot")
-async def update_robot(robot_id: str, robot_updated_config: RobotCreate):
+@router.patch("/robot/{robot_id}", description="Update existing robot")
+async def update_robot(robot_id: str, robot_updated_config: RobotUpdate):
   if robot_id in robots:
     robot_to_update = robots[robot_id]
     robot_original_config = Robot(**robot_to_update.model_dump())
 
-    # Update only the editable fields, keeping the original id.
-    robot_to_update.name = robot_updated_config.name
-    robot_to_update.type = robot_updated_config.type
-    robot_to_update.status = robot_updated_config.status
-    robot_to_update.description = robot_updated_config.description
+    # Update only fields provided in the PATCH request
+    update_data = robot_updated_config.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+      setattr(robot_to_update, field, value)
+
     return JSONResponse(
       status_code = status.HTTP_200_OK,
       content = {
@@ -76,7 +76,6 @@ async def update_robot(robot_id: str, robot_updated_config: RobotCreate):
       },
     )
 
-  # If the robot with the given ID does not exist, return a 404 error.
   else:
     return JSONResponse(
       status_code = status.HTTP_404_NOT_FOUND,

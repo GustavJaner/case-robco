@@ -40,7 +40,7 @@ def test_read_robots_endpoint():
   assert data["status"] == "ok"
   assert len(data["data"]["robots"]) == 1  # Assuming we have one robot created in the previous test.
 
-def test_update_robot_endpoint():
+def test_update_robot_endpoint_complete():
   data = client.get("/api/v1/robots").json()
   robot_id = data["data"]["robots"][0]["id"]  # Get the ID of the first robot (To update it).
   assert robot_id is not None
@@ -52,9 +52,28 @@ def test_update_robot_endpoint():
     "description": "Updated description"
   }
 
-  response = client.put(f"/api/v1/robot/{robot_id}", json=robot_updated_config)
+  response = client.patch(f"/api/v1/robot/{robot_id}", json=robot_updated_config)
   assert response.status_code == 200
   data = response.json()
   assert data["status"] == "ok"
   assert data["data"]["robot_updated"]["id"] == robot_id, "Robot ID should not change"
   assert data["data"]["robot_updated"]["name"] == robot_updated_config["name"]
+  assert data["data"]["robot_updated"]["type"] == robot_updated_config["type"]
+  assert data["data"]["robot_updated"]["status"] == robot_updated_config["status"]
+  assert data["data"]["robot_updated"]["description"] == robot_updated_config["description"]
+
+def test_update_robot_endpoint_partial():
+  data = client.get("/api/v1/robots").json()
+  robot_id = data["data"]["robots"][0]["id"]  # Get the ID of the first robot (To update it).
+  assert robot_id is not None
+
+  robot_updated_config = {
+    "status": "ERROR"
+  }
+
+  response = client.patch(f"/api/v1/robot/{robot_id}", json=robot_updated_config)
+  assert response.status_code == 200
+  data = response.json()
+  assert data["status"] == "ok"
+  assert data["data"]["robot_updated"]["id"] == robot_id, "Robot ID should not change"
+  assert data["data"]["robot_updated"]["status"] == robot_updated_config["status"]
