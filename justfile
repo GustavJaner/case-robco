@@ -6,9 +6,12 @@ set positional-arguments # Recipe arguments will be passed as positional argumen
 set shell := ["bash", "-euco", "pipefail"]
 
 JUST_DIR := justfile_directory() # Just root directory.
-PY_BE_DIR := JUST_DIR + "/python-be" # Python backend directory.
+PY_BE_DIR := JUST_DIR + "/python-be" # Python FastAPI backend directory.
+RE_FE_DIR := JUST_DIR + "/react-fe" # React frontend directory.
+
 KUBE_VERSION := "v1.33.1"
-IMAGE := "robco-robotics-platform" # Same as the ECR repo name.
+REGISTRY := "robco"
+IMAGE := "robotics-platform"
 TAG := env_var_or_default("TAG", "latest")
 
 # List available recipes.
@@ -26,7 +29,7 @@ setup-local-env:
   poetry env info -n && \
   poetry sync && \
   just py-create-env-file
-  cd "{{JUST_DIR}}/react-fe" && \
+  cd {{RE_FE_DIR}} && \
   npm install
 
 # Python run the FastAPI server locally.
@@ -83,17 +86,17 @@ py-audit:
 
 # npm install the React FE dependencies.
 re-npm-install:
-  cd "{{JUST_DIR}}/react-fe" && \
+  cd {{RE_FE_DIR}} && \
   npm install
 
 # npm start the React FE development server locally.
 re-run-fe:
-  cd "{{JUST_DIR}}/react-fe" && \
+  cd {{RE_FE_DIR}} && \
   npm start
 
 # npm test the React FE.
 re-test:
-  cd "{{JUST_DIR}}/react-fe" && \
+  cd {{RE_FE_DIR}} && \
   npm test
 
 # Note that the development build is not optimized. To create a production build, use npm run build.
@@ -140,3 +143,31 @@ kubectl-port-forward:
 # Delete the kubernetes resources defined in the manifests directory.
 kubectl-delete:
   kubectl delete -f k8s/robco/manifest.yaml
+
+##################################################
+### Docker
+##################################################
+
+# Build the BE Docker image.
+docker-build-be tag=TAG:
+	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE}}-be:{{tag}} -f {{PY_BE_DIR}}/Dockerfile {{PY_BE_DIR}}
+
+# Build the FE Docker image.
+docker-build-fe tag=TAG:
+	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE}}-fe:{{tag}} -f {{RE_FE_DIR}}/Dockerfile {{RE_FE_DIR}}
+
+# List Docker images
+docker-images *args="":
+	docker images {{args}}
+
+# Start a container from a Docker image
+docker-run *image_tag="latest":
+	docker run -d -p 8080:80 {{IMAGE}}:{{image_tag}}
+
+# Remove all stopped local Docker containers
+docker-rmc:
+  docker rm -f $(docker ps -aq)
+
+# Remove all local Docker images
+docker-rmi:
+  docker rmi -f $(docker images -a)
