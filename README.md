@@ -11,7 +11,7 @@ curl -sSL https://install.python-poetry.org | POETRY_VERSION=2.1.3 python3 -
 # Follow the install instructions and add Poetry to PATH if required. Verify that Poetry works:
 poetry --help
 ```
-3. [just](https://github.com/casey/just?tab=readme-ov-file#installation) (Just a command runner. Inspired by _make_)
+3. [just](https://github.com/casey/just?tab=readme-ov-file#installation) v1.40.0 (Just a command runner. Inspired by _make_)
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 # just should now be executable. If not: export PATH="$PATH:/usr/local/bin". Verify that just works:
@@ -20,30 +20,22 @@ just --help
 4. [Docker](https://docs.docker.com/desktop/) v24.0.6
 5. [minikube](https://minikube.sigs.k8s.io/docs/start) v1.36
 
-_These are suggested installations; adapt paths to suit your local environment._
+_These are suggested installations. Adapt paths to suit your local environment. Tested on Mac AMD._
 
 ### Initial Setup
 1. Clone the repo.
 2. Run `just` to list the available commands.
-3. Run `just setup-env` to create the development environment and install dependencies for the Python FastAPI backend and the React frontend.
-4. Run `just mk-start`
-5. Run `just mk-build-images`
-6. Run `just kubectl-apply`
-7. Run `just kubectl-port-forward-fe` and go to http://localhost:3000 in your browser.
-8. Try adding some robots in the UI 🤖
-
-### Contributing
-Test locally, then commit. Pre-commit tests are run locally.
-
-## Notes
-- What is Uvicorn? Uvicorn is a lightning-fast ASGI (Asynchronous Server Gateway Interface) server implementation, using uvloop and httptools.
-Purpose: It’s primarily used to run asynchronous web applications and frameworks that are compatible with the ASGI specification, such as FastAPI.
-- What is Pydantic? Pydantic is a Python library that uses type annotations to validate data and manage configurations. It enforces type hints at runtime and provides user-friendly errors when data is invalid.
-Key Features: a) Data Validation
-
+3. Run `just setup-local-env` to create the development environment and install dependencies for the Python FastAPI backend (BE) and the React frontend (FE).
+4. Run `just mk-start` to start the minikube cluster instance.
+5. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube env.
+6. Run `just kubectl-apply` to apply the K8S resources to the minikube cluster (To namespace `robco`).
+7. Run `just mk-update-hosts` to add the K8S Ingress host names to /etc/hosts _with sudo_.
+8. Run `just mk-tunnel` to start minikube tunnel to the BE & FE ingresses.
+9. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
+   - http://robot-service.local/docs for FastAPI docs.
 
 ### Assumptions & Tradeoffs
-- todo:)
+- TODO
 
 ## TODO
 - [x] Deploy minikube k8s cluster
@@ -55,18 +47,16 @@ Key Features: a) Data Validation
 - [x] Test build my own Docker image for the BE
 - [x] Test initial setup
 - [x] Setup some svc/ingress to locally access the BE & FE
-- [ ] Deploy Loki
-- [ ] Deploy Prometheus
-- [ ] Write local setup instructions
+- [ ] Add a proper SQL DB for the BE (Ensure the PATCH issue is fixed in K8S).
+- [ ] Deploy Loki and add to FE.
+- [ ] Deploy Prometheus and add to FE.
+- [x] Write local setup instructions
 - [ ] Add architecture overview diagrams (drawio)
 - [ ] Add notes on assumptions and tradeoffs
 
-Q: how to manage the deployments to minikube? Terraform(not so infra heavy project apart from the minikube cluster itself..), ArgoCD?
-
 ### Improvements
-- [ ] Manage minikube k8s cluster creation and destruction with terraform?
 - [ ] Add pre-commit.
 - [ ] Automate with GHA.
-- [ ] Use OTEL? Standards for logs and metrics, then the logs/metrics backends can be changed later. 
+- [ ] Use OTEL.
 - [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
 - [ ] Add tests for the React FE.

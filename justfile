@@ -100,11 +100,6 @@ re-test:
   cd {{RE_FE_DIR}} && \
   npm test
 
-# Note that the development build is not optimized. To create a production build, use npm run build.
-
-# Clean up the local development environment.
-clean-up: mk-cleanup
-
 ##################################################
 ### Manage minikube cluster
 ##################################################
@@ -116,11 +111,6 @@ mk-start kube_version=KUBE_VERSION:
   minikube addons enable ingress-dns
   docker ps
   kubectl cluster-info
-  # Update /etc/hosts with ingress hostnames
-  minikube_ip=$(minikube ip)
-  sudo sed -i '' '/robot-dashboard.local/d' /etc/hosts
-  sudo sed -i '' '/robot-service.local/d' /etc/hosts
-  echo "$minikube_ip robot-dashboard.local robot-service.local" | sudo tee -a /etc/hosts
 
 # Build the Docker images for the Python BE and React FE in the minikube Docker env.
 mk-build-images:
@@ -136,6 +126,16 @@ mk-list-images:
 # minikube print the minikube cluster IP.
 mk-ip:
   minikube ip
+
+# Update /etc/hosts with ingress hostnames (Uses sudo).
+mk-update-hosts:
+  sudo sed -i '' '/robot-dashboard.local/d' /etc/hosts
+  sudo sed -i '' '/robot-service.local/d' /etc/hosts
+  echo "127.0.0.1 robot-dashboard.local robot-service.local" | sudo tee -a /etc/hosts
+
+# minikube start tunnel to the BE & FE ingresses.
+mk-tunnel:
+  minikube tunnel
 
 # minikube create a tunnel to the FE service via NodePort.
 mk-tunnel-fe:
