@@ -72,7 +72,8 @@ Q: how to manage the deployments to minikube? Terraform(not so infra heavy proje
 
 ### Improvements
 - [ ] Manage minikube k8s cluster creation and destruction with terraform?
-- [ ] Add pre-commit
-- [ ] Automate with GHA
+- [ ] Add pre-commit.
+- [ ] Automate with GHA.
 - [ ] Use OTEL? Standards for logs and metrics, then the logs/metrics backends can be changed later. 
 - [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
+- [ ] Add tests for the React FE.

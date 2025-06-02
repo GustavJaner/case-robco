@@ -5,11 +5,14 @@ set positional-arguments # Recipe arguments will be passed as positional argumen
 # -o pipefail If any command in a pipeline fails, that return code will be used as the return code of the whole pipeline.
 set shell := ["bash", "-euco", "pipefail"]
 
-JUST_DIR := justfile_directory()
+JUST_DIR := justfile_directory() # Just root directory.
+PY_BE_DIR := JUST_DIR + "/python-be" # Python backend directory.
 KUBE_VERSION := "v1.33.1"
+IMAGE := "robco-robotics-platform" # Same as the ECR repo name.
+TAG := env_var_or_default("TAG", "latest")
 
 # List available recipes.
-default: 
+default:
   @just --list --unsorted
 
 ##################################################
@@ -18,66 +21,80 @@ default:
 
 # Set up Python BE and React FE for local development.
 setup-local-env:
-  cd {{JUST_DIR}}
-  poetry config virtualenvs.in-project true # Create the Python virtual environment inside the project’s root directory.
-  poetry env info -n # Print venv info.
-  poetry sync # Synchronize the project’s venv with the locked packages in the poetry.lock file.
-  just create-env-file
-  cd "{{JUST_DIR}}/react-fe" && npm install
+  cd {{PY_BE_DIR}} && \
+  poetry config virtualenvs.in-project true && \
+  poetry env info -n && \
+  poetry sync && \
+  just py-create-env-file
+  cd "{{JUST_DIR}}/react-fe" && \
+  npm install
 
 # Python run the FastAPI server locally.
 py-run-be:
-  PYTHONPATH={{JUST_DIR}} poetry run fastapi dev app/main.py --reload --port 8000; \
+  cd {{PY_BE_DIR}} && PYTHONPATH={{PY_BE_DIR}} \
+  poetry run fastapi dev app/main.py --reload --port 8000
 
 # Create .env file based on template.
 @py-create-env-file:
-  cd {{JUST_DIR}} \
-  && [ -z "$(ls .env)" ] && cp .env.template .env || echo ".env already exists"
+  cd {{PY_BE_DIR}} && \
+  [ ! -f .env ] && cp .env.template .env || echo ".env already exists"
 
-# Poetry synchronize the project’s venv with the locked packages (Similar to poetry install but also removes packages not tracked in the lock file).
+# Poetry synchronize the project’s venv with the locked packages.
 py-dep-sync *args="":
-    poetry sync {{args}}
+  cd {{PY_BE_DIR}} && \
+  poetry sync {{args}} # sync is similar to poetry install but also removes packages from venv not tracked in the lock file.
 
-# Poetry update all dependencies in poetry.lock to the latest (Respecting the version constraints in the pyproject.toml) and sync venv.
+# Poetry update all dependencies in poetry.lock to the latest and sync venv.
 py-dep-upd *args="--sync":
-    poetry update {{args}}
+  cd {{PY_BE_DIR}} && \
+  poetry update {{args}} # Update lock file while respecting the version constraints in the pyproject.toml.
 
-# Poetry validate pyproject.toml and lock dependencies to the poetry.lock file (Without installing/syncing).
+# Poetry validate pyproject.toml and lock dependencies to the poetry.lock file.
 py-dep-lock:
-    poetry check; poetry check --lock; poetry lock
+  cd {{PY_BE_DIR}} && \
+  poetry check; poetry check --lock; poetry lock # Lock dependencies Without syncing venv.
 
 # Poetry remove lock file and regenerate from pyproject.toml.
 py-dep-lock-rg:
-    poetry lock --regenerate
+  cd {{PY_BE_DIR}} && \
+  poetry lock --regenerate
 
 # Poetry show all dependencies in tree.
 py-dep-show:
-    poetry show --tree
-
-# Run pip-audit (Python dependency vulnerability scanner).
-run-pa:
-    PYTHONPATH={{JUST_DIR}} poetry run pip-audit
+  cd {{PY_BE_DIR}} && \
+  poetry show --tree
 
 # Run tests for the Python FastAPI BE.
 py-test path="app/tests":
-	PYTHONPATH={{JUST_DIR}} poetry run pytest -r A -vs {{path}} --color=yes
+  cd {{PY_BE_DIR}} && PYTHONPATH={{PY_BE_DIR}} \
+  poetry run pytest -r A -vs {{path}} --color=yes
 
 # Run tests for the Python FastAPI BE and generate coverage report.
 py-test-cov path="app/tests":
-	PYTHONPATH={{JUST_DIR}} \
-	poetry run coverage run --omit="*/test*,*/.venv/*,*__init__.py" -m pytest -r A -vs {{path}} && \
-	poetry run coverage report -m && \
-	poetry run coverage html --skip-empty
+  cd {{PY_BE_DIR}} && PYTHONPATH={{PY_BE_DIR}} \
+  poetry run coverage run --omit="*/test*,*/.venv/*,*__init__.py" -m pytest -r A -vs {{path}} && \
+  poetry run coverage report -m && \
+  poetry run coverage html --skip-empty
 
+# Run pip-audit (Python dependency vulnerability scanner).
+py-audit:
+  cd {{PY_BE_DIR}} && PYTHONPATH={{PY_BE_DIR}} \
+  poetry run pip-audit
+
+# npm install the React FE dependencies.
 re-npm-install:
-  cd "{{JUST_DIR}}/react-fe" && npm install
+  cd "{{JUST_DIR}}/react-fe" && \
+  npm install
 
-re-test:
-  cd "{{JUST_DIR}}/react-fe" && npm test
-
-# npm start the React frontend development server locally.
+# npm start the React FE development server locally.
 re-run-fe:
-  cd "{{JUST_DIR}}/react-fe" && npm start
+  cd "{{JUST_DIR}}/react-fe" && \
+  npm start
+
+# npm test the React FE.
+re-test:
+  cd "{{JUST_DIR}}/react-fe" && \
+  npm test
 
 # Note that the development build is not optimized. To create a production build, use npm run build.
 
