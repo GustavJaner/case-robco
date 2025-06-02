@@ -24,20 +24,13 @@ _These are suggested installations; adapt paths to suit your local environment._
 
 ### Initial Setup
 1. Clone the repo.
-2. Run `just setup-env` to create the development environment and install dependencies. This should provision the minikube cluster and the deployments running there, or should this be in another command?
-
-
-    Clone the repository.
-    Run just setup-env to create the development environment and install dependencies. This will also create a .env file in the root directory.
-    Adjust environment variables in .env, if necessary.
-    Run just to see available commands and options, including how to start the FastAPI server for local development.
-    Run just run-server to launch the application, and verify it’s working by visiting http://127.0.0.1:8000/docs.
-    The endpoints are secured using basic authentication.
-        The default username is username and the password is password.
-        The credentials can be adjusted in the .env file.
-
-Quality Assurance
-For quality assurance, a couple of tools are set up already. To install pre-commit run just pc i. To run pre-commit hooks for all files use just pc a.
+2. Run `just` to list the available commands.
+3. Run `just setup-env` to create the development environment and install dependencies for the Python FastAPI backend and the React frontend.
+4. Run `just mk-start`
+5. Run `just mk-build-images`
+6. Run `just kubectl-apply`
+7. Run `just kubectl-port-forward-fe` and go to http://localhost:3000 in your browser.
+8. Try adding some robots in the UI 🤖
 
 ### Contributing
 Test locally, then commit. Pre-commit tests are run locally.
@@ -59,9 +52,9 @@ Key Features: a) Data Validation
 - [x] Add simple BE routes for adding and listing robots
 - [x] Deploy simple (Framework: React) FE (web UI)
 - [x] Setup basic tests
-- [ ] Test build my own Docker image for the BE
-- [ ] Test initial setup
-- [ ] Setup some svc/ingress to locally access the BE & FE
+- [x] Test build my own Docker image for the BE
+- [x] Test initial setup
+- [x] Setup some svc/ingress to locally access the BE & FE
 - [ ] Deploy Loki
 - [ ] Deploy Prometheus
 - [ ] Write local setup instructions

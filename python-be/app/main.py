@@ -3,6 +3,8 @@
 
 from fastapi import FastAPI #, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import logging
 
 # from fastapi.responses import JSONResponse
 # from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -17,7 +19,7 @@ app = FastAPI(debug=Config.DEBUG_MODE)
 
 # CORS middleware to allow requests from the React FE.
 origins = [
-    "http://localhost:3000"
+    os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000") # Reads the frontend origin from env variable at runtime.
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +31,16 @@ app.add_middleware(
 
 app.include_router(health.router, prefix="/health")  # Prefix is used to group the endpoints under /health. @router.get("/bar") would become /health/bar.
 app.include_router(robots.router, prefix="/api/v1") # Prefix is used to group the endpoints under /api/v1. @router.get("/bar") would become /api/v1/bar.
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("uvicorn.error")
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"Incoming request: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"Response status: {response.status_code} for {request.method} {request.url}")
+    return response
 
 
 # def is_valid_credentials(

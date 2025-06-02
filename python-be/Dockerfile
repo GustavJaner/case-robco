@@ -41,8 +41,7 @@ COPY pyproject.toml ./
 COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
 
-# Expose the application port. Not required for Kubernetes pod containers.
-# EXPOSE 80
+# EXPOSE 80 # Expose the application port. Not required for Kubernetes pod containers.
 
 # Add a healthcheck.
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

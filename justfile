@@ -11,7 +11,8 @@ RE_FE_DIR := JUST_DIR + "/react-fe" # React frontend directory.
 
 KUBE_VERSION := "v1.33.1"
 REGISTRY := "robco"
-IMAGE := "robotics-platform"
+IMAGE_BE := "robot-service"
+IMAGE_FE := "robot-dashboard"
 TAG := env_var_or_default("TAG", "latest")
 
 # List available recipes.
@@ -111,8 +112,34 @@ clean-up: mk-cleanup
 # minkube start cluster instance.
 mk-start kube_version=KUBE_VERSION:
   minikube start --kubernetes-version={{kube_version}}
+  minikube addons enable ingress
+  minikube addons enable ingress-dns
   docker ps
   kubectl cluster-info
+  # Update /etc/hosts with ingress hostnames
+  minikube_ip=$(minikube ip)
+  sudo sed -i '' '/robot-dashboard.local/d' /etc/hosts
+  sudo sed -i '' '/robot-service.local/d' /etc/hosts
+  echo "$minikube_ip robot-dashboard.local robot-service.local" | sudo tee -a /etc/hosts
+
+# Build the Docker images for the Python BE and React FE in the minikube Docker env.
+mk-build-images:
+  eval $(minikube docker-env) && \
+  just docker-build-be && \
+  just docker-build-fe && \
+  docker images
+
+# List the images available in the minikube Docker env.
+mk-list-images:
+  minikube image list
+
+# minikube print the minikube cluster IP.
+mk-ip:
+  minikube ip
+
+# minikube create a tunnel to the FE service via NodePort.
+mk-tunnel-fe:
+  minikube service -n robco robot-dashboard - url
 
 # minikube pause cluster (Without impacting deployed applications).
 mk-pause:
@@ -136,38 +163,42 @@ kubectl-apply:
   kubectl apply -f k8s/robco/manifest.yaml
   kubectl -n robco get all
 
-# Forward the service port to localhost. Then visit http://localhost:8080 in your browser.
-kubectl-port-forward:
-  kubectl -n robco port-forward svc/robot-service 8080:8080
+# Forward the BE service port to localhost. Then go to http://localhost:8000 in your browser.
+kubectl-port-forward-be:
+  kubectl -n robco port-forward svc/robot-service 8000:8000
+
+# Forward the FE service port to localhost. Then go to http://localhost:3000 in your browser.
+kubectl-port-forward-fe:
+  kubectl -n robco port-forward svc/robot-dashboard 3000:3000
 
 # Delete the kubernetes resources defined in the manifests directory.
 kubectl-delete:
   kubectl delete -f k8s/robco/manifest.yaml
 
 ##################################################
-### Docker
+### Manage Docker resources
 ##################################################
 
-# Build the BE Docker image.
+# Docker build the BE image.
 docker-build-be tag=TAG:
-	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE}}-be:{{tag}} -f {{PY_BE_DIR}}/Dockerfile {{PY_BE_DIR}}
+	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE_BE}}:{{tag}} -f {{PY_BE_DIR}}/Dockerfile {{PY_BE_DIR}}
 
-# Build the FE Docker image.
+# Docker build the FE image.
 docker-build-fe tag=TAG:
-	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE}}-fe:{{tag}} -f {{RE_FE_DIR}}/Dockerfile {{RE_FE_DIR}}
+	DOCKER_BUILDKIT=1 docker build -t {{REGISTRY}}/{{IMAGE_FE}}:{{tag}} -f {{RE_FE_DIR}}/Dockerfile {{RE_FE_DIR}}
 
-# List Docker images
+# Docker list images.
 docker-images *args="":
 	docker images {{args}}
 
-# Start a container from a Docker image
-docker-run *image_tag="latest":
-	docker run -d -p 8080:80 {{IMAGE}}:{{image_tag}}
+# Docker run BE container locally.
+docker-run tag=TAG:
+	docker run -d -p 8000:80 {{REGISTRY}}/{{IMAGE_BE}}:{{tag}}
 
-# Remove all stopped local Docker containers
+# Docker remove all stopped local Docker containers.
 docker-rmc:
   docker rm -f $(docker ps -aq)
 
-# Remove all local Docker images
+# Docker remove all local Docker images.
 docker-rmi:
   docker rmi -f $(docker images -a)
