@@ -49,25 +49,30 @@ py-run-be:
   cd {{PY_BE_DIR}} && \
   [ ! -f .env ] && cp .env.template .env || echo ".env already exists"
 
-# Poetry synchronize the project’s venv with the locked packages.
-py-dep-sync *args="":
-  cd {{PY_BE_DIR}} && \
-  poetry sync {{args}} # sync is similar to poetry install but also removes packages from venv not tracked in the lock file.
-
 # Poetry update all dependencies in poetry.lock to the latest and sync venv.
 py-dep-upd *args="--sync":
   cd {{PY_BE_DIR}} && \
   poetry update {{args}} # Update lock file while respecting the version constraints in the pyproject.toml.
 
-# Poetry validate pyproject.toml and lock dependencies to the poetry.lock file.
+# Poetry lock dependencies from pyproject.toml to the poetry.lock file.
 py-dep-lock:
   cd {{PY_BE_DIR}} && \
-  poetry check; poetry check --lock; poetry lock # Lock dependencies Without syncing venv.
+  poetry lock # Lock dependencies without syncing venv.
+
+# Poetry validate pyproject.toml and lock dependencies to the poetry.lock file.
+py-dep-lock-validate:
+  cd {{PY_BE_DIR}} && \
+  poetry check; poetry check --lock; poetry lock # Validate and lock dependencies without syncing venv.
 
 # Poetry remove lock file and regenerate from pyproject.toml.
 py-dep-lock-rg:
   cd {{PY_BE_DIR}} && \
   poetry lock --regenerate
+
+# Poetry sync(install) the project’s venv with the locked packages.
+py-dep-sync *args="":
+  cd {{PY_BE_DIR}} && \
+  poetry sync {{args}} # sync is similar to poetry install but also removes packages from venv not tracked in the lock file.
 
 # Poetry show all dependencies in tree.
 py-dep-show:
@@ -110,6 +115,9 @@ re-test:
 cleanup-local-env:
   psql postgres -c "DROP DATABASE IF EXISTS robotdb;"
   psql postgres -c "DROP USER IF EXISTS robotuser;"
+  find {{PY_BE_DIR}} -type d -name '.venv' -exec rm -rf {} +
+  find {{PY_BE_DIR}} -type d -name '__pycache__' -exec rm -rf {} +
+  find {{RE_FE_DIR}} -type d -name 'node_modules' -exec rm -rf {} +
 
 ##################################################
 ### Manage minikube cluster

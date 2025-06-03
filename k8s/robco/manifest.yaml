@@ -33,17 +33,17 @@ spec:
         name: robot-service
         resources:
           limits:
-            memory: 256Mi
+            memory: 1Gi
           requests:
             cpu: 10m
-            memory: 64Mi
+            memory: 0.25Gi
         ports:
         - containerPort: 80
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         env:
         - name: DATABASE_URL
-          value: postgresql+asyncpg://user:password@postgres-service:5432/robotsdb
+          value: postgresql+asyncpg://robotuser:password@postgres-db:5432/robotdb
         - name: FRONTEND_ORIGIN
           value: "http://robot-dashboard.local"
       dnsPolicy: ClusterFirst
@@ -154,53 +154,56 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
+  name: postgres-db
+  namespace: robco
 spec:
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-spec:
-  ports:
-    - port: 5432
-  selector:
-    app: postgres
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: postgres-db
+  namespace: robco
 spec:
   selector:
     matchLabels:
-      app: postgres
+      app: postgres-db
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgres-db
     spec:
       containers:
-        - name: postgres
-          image: postgres:15
-          env:
-            - name: POSTGRES_DB
-              value: robotsdb
-            - name: POSTGRES_USER
-              value: user
-            - name: POSTGRES_PASSWORD
-              value: password
-          ports:
-            - containerPort: 5432
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-storage
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: robotdb
+        - name: POSTGRES_USER
+          value: robotuser
+        - name: POSTGRES_PASSWORD
+          value: password
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-db
       volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+      - name: postgres-db
+        persistentVolumeClaim:
+          claimName: postgres-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+  namespace: robco
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres-db

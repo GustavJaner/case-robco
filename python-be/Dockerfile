@@ -48,7 +48,7 @@ COPY --from=build /usr/local/bin /usr/local/bin
 #   CMD curl --fail http://localhost:80/health || exit 1
 
 # Default command to run when the container starts (How to run the application contained in the image).
-CMD ["poetry", "run", "fastapi", "run", "main.py", "--workers", "4", "--port", "80"]
+CMD ["poetry", "run", "fastapi", "run", "main.py", "--workers", "1", "--port", "80"]
 
 # Consider using a production-grade ASGI server like uvicorn or gunicorn for FastAPI, rather than poetry run fastapi run.
 # CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "4"]

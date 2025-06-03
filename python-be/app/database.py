@@ -5,6 +5,7 @@ import os
 # from app.config import settings
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql+asyncpg://robotuser:password@localhost:5432/robotdb")
+print(f"🔎 [database] Using DATABASE_URL: {DATABASE_URL}")
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False) # The SQLAlchemy ORM session that manages the database transactions(write/read from tables).

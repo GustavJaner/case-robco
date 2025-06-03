@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-console.log("API baseURL:", process.env.REACT_APP_API_URL || 'http://localhost:8000');
+// console.log("API baseURL:", process.env.REACT_APP_API_URL || 'http://localhost:8000');
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000', // Set during building (Compiled to static files).
+    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000', // Need to set during building (Compiled to static files).
 })
 
 // Add a request/response interceptor for logging
