@@ -1,12 +1,17 @@
 import asyncio
-from app.database import engine
-from app.models.robot import Base
+import sys
+from app.database import Base, engine
 
-# Initializes the database by creating all tables defined in the models.
+# Initializes the database by creating all tables defined in app/models.
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+  try:
+    async with engine.begin() as conn: # Connection to the DB engine to manage schema changes.
+      await conn.run_sync(Base.metadata.create_all) # Apply the ORM schema models to the DB.
+    print("✅ Database initialized successfully.")
+  except Exception as e:
+    print(f"Error initializing database: {e}", file=sys.stderr)
+    sys.exit(1)
 
-# To enable running this script directly to init the DB.
+# To enable running this script directly to init the DB (Run: python app/init_db.py). This won't run if imported as a module.
 if __name__ == "__main__":
-    asyncio.run(init_db())
+  asyncio.run(init_db())

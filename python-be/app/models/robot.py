@@ -10,6 +10,7 @@ from app.schemas.robot import RobotType, RobotStatus
 # Each instance of the RobotORM class represents a table row in the database.
 class RobotORM(Base):
   __tablename__ = "robots"
+
   id = Column(UUID(as_uuid=True), primary_key=True, index=True) #, default=uuid.uuid4)
   name = Column(String(31), index=True)
   type = Column(SqlEnum(RobotType, name="robottype_enum"), nullable=False)

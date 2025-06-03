@@ -10,9 +10,9 @@ class RobotType(str, Enum):
   BARBOT = "bar-bot"
 
 class RobotStatus(str, Enum):
-  IDLE = "IDLE"
+  IDLE   = "IDLE"
   ACTIVE = "ACTIVE"
-  ERROR = "ERROR"
+  ERROR  = "ERROR"
 
 # Defines the base schema for robots. Fields, types and default values.
 class RobotBase(BaseModel):
@@ -22,15 +22,15 @@ class RobotBase(BaseModel):
   status: RobotStatus = RobotStatus.IDLE
   description: Optional[str] = None
 
-# This schema is used for validating user input data when creating a new robot.
+# Schema to validate user input data when creating a new robot.
 # This class defines what fields a user can use when creating a new robot ex. with the with POST request.
-class RobotCreate(BaseModel):  # Used for validating data when creating a new robot.
+class RobotCreate(BaseModel):
   name: str
   type: RobotType
   status: RobotStatus
   description: Optional[str] = None
 
-# Used for PATCH requests to update existing robots. All fields are optional, allowing partial updates.
+# Schema to validate user input data when update existing robots. All fields are optional, allowing partial updates.
 class RobotUpdate(BaseModel):  # Used for validating data when creating a new robot.
   name: Optional[str] = None
   type: Optional[RobotType] = None
