@@ -20,38 +20,28 @@ just --help
 4. [Docker](https://docs.docker.com/desktop/) v24.0.6
 5. [minikube](https://minikube.sigs.k8s.io/docs/start) v1.36
 
-_These are suggested installations. Adapt paths to suit your local environment. Tested on Mac AMD._
+_These are suggested installations. Adapt paths to suit your local environment. Tested on Mac (amd64)._
 
 ### Initial Setup
 1. Clone the repo.
 2. Run `just` to list the available commands.
-3. Run `just setup-local-env` to create the development environment and install dependencies for the Python FastAPI backend (BE) and the React frontend (FE).
+3. (Optional) Run `just setup-local-env` to create the local development environment (Install dependencies for the Python FastAPI backend (BE) and the React frontend (FE)).
 4. Run `just mk-start` to start the minikube cluster instance.
-5. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube env.
+5. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube Docker env.
 6. Run `just kubectl-apply` to apply the K8S resources to the minikube cluster (To namespace `robco`).
 7. Run `just mk-update-hosts` to add the K8S Ingress host names to /etc/hosts _with sudo_.
 8. Run `just mk-tunnel` to start minikube tunnel to the BE & FE ingresses.
 9. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
    - http://robot-service.local/docs for FastAPI docs.
 
-### Assumptions & Tradeoffs
+## Assumptions & Tradeoffs
 - TODO
 
 ## TODO
-- [x] Deploy minikube k8s cluster
-- [x] Test deploy a new namespace with a deployment+pod+svc (dummy image) for the BE+FE
-- [x] Deploy simple python FastAPI BE
-- [x] Add simple BE routes for adding and listing robots
-- [x] Deploy simple (Framework: React) FE (web UI)
-- [x] Setup basic tests
-- [x] Test build my own Docker image for the BE
-- [x] Test initial setup
-- [x] Setup some svc/ingress to locally access the BE & FE
 - [ ] Add a proper SQL DB for the BE (Ensure the PATCH issue is fixed in K8S).
-- [ ] Deploy Loki and add to FE.
-- [ ] Deploy Prometheus and add to FE.
-- [x] Write local setup instructions
-- [ ] Add architecture overview diagrams (drawio)
+- [ ] Deploy Loki and add logs to FE.
+- [ ] Deploy Prometheus and add metrics to FE.
+- [ ] Add architecture overview diagrams (drawio).
 - [ ] Add notes on assumptions and tradeoffs
 
 ### Improvements
