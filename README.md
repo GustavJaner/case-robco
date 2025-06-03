@@ -56,4 +56,5 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 - [ ] Automate tests, builds and proper image tagging with GHA.
 - [ ] Use OTEL.
 - [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
+- [ ] Add DB table columns for robot created and last updated.
 - [ ] Add tests for the React FE.

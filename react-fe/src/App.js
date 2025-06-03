@@ -24,7 +24,8 @@ const App = () => {
   const [robots, setStateRobots] = useState([]); // State to hold the list of current robots. setStateRobots is the function to update this state.
   const [formData, setStateFormData] = useState(defaultFormData);
   const [updateFormData, setStateUpdateFormData] = useState(defaultUpdateFormData);
-  const [updateError, setUpdateError] = useState(null);
+  const [updateError, setStateUpdateError] = useState(null);
+  const [sortConfig, setStateSortConfig] = useState({ key: 'id', direction: 'asc' });
 
   const fetchRobots = async () => {
     try {
@@ -71,7 +72,7 @@ const App = () => {
   const handleUpdateFormSubmit = async (event) => {
     event.preventDefault();
     if (!updateFormData.id) {
-      setUpdateError('Robot ID is required.');
+      setStateUpdateError('Robot ID is required.');
       return;
     }
 
@@ -85,11 +86,36 @@ const App = () => {
       await api.patch(`/api/v1/robot/${updateFormData.id}`, robot_updated_config);
       fetchRobots(); // Fetch the updated list of robots after form submission.
       setStateUpdateFormData(defaultUpdateFormData);
-      setUpdateError(null); // Clear any previous error.
+      setStateUpdateError(null); // Clear any previous error.
     } catch (err) {
-      setUpdateError(err.response?.data?.error || err.message || 'Failed to update robot.');
+      setStateUpdateError(err.response?.data?.error || err.message || 'Failed to update robot.');
     }
   };
+
+  const handleSort = (column) => {
+    setStateSortConfig((prev) => {
+      if (prev.key === column) {
+        // Toggle direction
+        return { key: column, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key: column, direction: 'asc' };
+    });
+  };
+
+  const sortedRobots = React.useMemo(() => {
+    const sortableColumns = ['name', 'type', 'status']; // Removed 'id'
+    if (!sortableColumns.includes(sortConfig.key)) return robots;
+    const sorted = [...robots].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+      aVal = aVal ? aVal.toString().toLowerCase() : '';
+      bVal = bVal ? bVal.toString().toLowerCase() : '';
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [robots, sortConfig]);
 
   return (
     <div className="bg-light min-vh-100" style={{ padding: '32px' }}>
@@ -299,14 +325,20 @@ const App = () => {
               <thead className='table-dark'>
                 <tr>
                   <th className='text-start'>ID</th>
-                  <th className='text-start'>Name</th>
-                  <th className='text-start'>Type</th>
-                  <th className='text-start'>Status</th>
+                  <th className='text-start' style={{cursor: 'pointer'}} onClick={() => handleSort('name')}>
+                    Name {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th className='text-start' style={{cursor: 'pointer'}} onClick={() => handleSort('type')}>
+                    Type {sortConfig.key === 'type' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th className='text-start' style={{cursor: 'pointer'}} onClick={() => handleSort('status')}>
+                    Status {sortConfig.key === 'status' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                  </th>
                   <th className='text-start'>Description</th>
                 </tr>
               </thead>
               <tbody>
-                {robots.map((item) => (
+                {sortedRobots.map((item) => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
                     <td>{item.name}</td>
