@@ -149,12 +149,12 @@ mk-list-images:
 
 # minikube apply the kubernetes resources defined in the manifests directory.
 mk-apply-resources:
-  minikube kubectl -- apply -f k8s/robco/manifest.yaml
+  minikube kubectl -- apply -f k8s/robco/
   minikube kubectl -- -n robco get all
 
 # minikube delete the kubernetes resources defined in the manifests directory.
-mk-delete-resources:
-  minikube kubectl -- delete -f k8s/robco/manifest.yaml
+mk-remove-resources:
+  minikube kubectl -- delete -f k8s/robco/
 
 # Update /etc/hosts (sudo) and start minikube tunnel to the BE & FE ingresses.
 mk-host-tunnel:

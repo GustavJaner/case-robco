@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: robot-dashboard
+  name: robot-dashboard
+  namespace: robco
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: robot-dashboard
+  template:
+    metadata:
+      labels:
+        app: robot-dashboard
+    spec:
+      containers:
+      - image: robco/robot-dashboard:latest
+        imagePullPolicy: IfNotPresent
+        name: robot-dashboard
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: robot-dashboard
+  namespace: robco
+spec:
+  selector:
+    app: robot-dashboard
+  type: NodePort
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: robot-dashboard
+  namespace: robco
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: robot-dashboard.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: robot-dashboard
+            port:
+              number: 3000

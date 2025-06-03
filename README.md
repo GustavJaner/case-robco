@@ -44,7 +44,7 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 - TODO
 
 ## TODO
-- [ ] Add a proper SQL DB for the BE (Ensure the PATCH issue is fixed in K8S).
+- [ ] Fix BE tests with DB.
 - [ ] Deploy Loki and add logs to FE.
 - [ ] Fix standard structured logging.
 - [ ] Deploy Prometheus and add metrics to FE.
@@ -58,3 +58,5 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 - [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
 - [ ] Add DB table columns for robot created and last updated.
 - [ ] Add tests for the React FE.
+- [ ] Structure and utilize the python .env file and config.py better.
+- [ ] Add retry logic to Python FastAPI DB init with exponential backoff to avoid pod failure until DB pod is ready.
