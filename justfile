@@ -104,7 +104,7 @@ re-test:
 ### Manage minikube cluster
 ##################################################
 
-# minkube start cluster instance.
+# minkube start the cluster instance.
 mk-start kube_version=KUBE_VERSION:
   minikube start --kubernetes-version={{kube_version}}
   minikube addons enable ingress
@@ -112,7 +112,12 @@ mk-start kube_version=KUBE_VERSION:
   docker ps
   kubectl cluster-info
 
-# Docker build images for the Python BE and React FE in the minikube Docker env.
+# minikube build BE & FE images and apply K8S resources to the minikube cluster.
+mk-deploy-app:
+  just mk-build-images
+  just mk-apply-resources
+
+# Docker build  BE & FE images in the minikube Docker env.
 mk-build-images:
   eval $(minikube docker-env) && \
   just docker-build-be && \
@@ -132,7 +137,12 @@ mk-apply-resources:
 mk-delete-resources:
   minikube kubectl -- delete -f k8s/robco/manifest.yaml
 
-# Update /etc/hosts with K8S ingress hostnames (Uses sudo).
+# Update /etc/hosts (sudo) and start minikube tunnel to the BE & FE ingresses.
+mk-host-tunnel:
+  just mk-update-hosts
+  just mk-tunnel
+
+# Update /etc/hosts with the BE & FE K8S ingress hostnames (Uses sudo).
 mk-update-hosts:
   sudo sed -i '' '/robot-dashboard.local/d' /etc/hosts
   sudo sed -i '' '/robot-service.local/d' /etc/hosts
@@ -163,11 +173,11 @@ mk-cleanup:
 ### Manage kubernetes resources
 ##################################################
 
-# Forward the BE service port to localhost. Then go to http://localhost:8000 in your browser.
+# Forward the BE service port to localhost.
 kubectl-port-forward-be:
   kubectl -n robco port-forward svc/robot-service 8000:8000
 
-# Forward the FE service port to localhost. Then go to http://localhost:3000 in your browser.
+# Forward the FE service port to localhost.
 kubectl-port-forward-fe:
   kubectl -n robco port-forward svc/robot-dashboard 3000:3000
 

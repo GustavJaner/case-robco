@@ -35,11 +35,9 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 
 #### minikube K8S Setup
 1. Run `just mk-start` to start the minikube cluster instance.
-2. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube Docker env.
-3. Run `just mk-apply-resources` to apply the K8S resources to the minikube cluster (To namespace `robco`).
-4. Run `just mk-update-hosts` to add the K8S Ingress host names to /etc/hosts _with sudo_.
-5. Run `just mk-tunnel` to start minikube tunnel to the BE & FE ingresses.
-6. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
+2. Run `just mk-deploy-app` to build the Docker images for the BE & FE in the minikube Docker env and apply the K8S resources to the minikube cluster (To namespace `robco`).
+3. Run `just mk-host-tunnel` to add the K8S Ingress host names to /etc/hosts _with sudo_ and start minikube tunnel to the BE & FE ingresses.
+4. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
    - http://robot-service.local/docs for FastAPI docs.
 
 ## Assumptions & Tradeoffs
@@ -55,7 +53,7 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 
 ### Improvements
 - [ ] Add pre-commit.
-- [ ] Automate with GHA.
+- [ ] Automate tests, builds and proper image tagging with GHA.
 - [ ] Use OTEL.
 - [ ] Add more API endpoints. Ex. get a specific robot by id and delete (Complete CRUD).
 - [ ] Add tests for the React FE.
