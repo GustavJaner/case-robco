@@ -112,22 +112,27 @@ mk-start kube_version=KUBE_VERSION:
   docker ps
   kubectl cluster-info
 
-# Build the Docker images for the Python BE and React FE in the minikube Docker env.
+# Docker build images for the Python BE and React FE in the minikube Docker env.
 mk-build-images:
   eval $(minikube docker-env) && \
   just docker-build-be && \
   just docker-build-fe && \
   docker images
 
-# List the images available in the minikube Docker env.
+# minikube list the images available in the minikube Docker env.
 mk-list-images:
   minikube image list
 
-# minikube print the minikube cluster IP.
-mk-ip:
-  minikube ip
+# minikube apply the kubernetes resources defined in the manifests directory.
+mk-apply-resources:
+  minikube kubectl -- apply -f k8s/robco/manifest.yaml
+  minikube kubectl -- -n robco get all
 
-# Update /etc/hosts with ingress hostnames (Uses sudo).
+# minikube delete the kubernetes resources defined in the manifests directory.
+mk-delete-resources:
+  minikube kubectl -- delete -f k8s/robco/manifest.yaml
+
+# Update /etc/hosts with K8S ingress hostnames (Uses sudo).
 mk-update-hosts:
   sudo sed -i '' '/robot-dashboard.local/d' /etc/hosts
   sudo sed -i '' '/robot-service.local/d' /etc/hosts
@@ -158,11 +163,6 @@ mk-cleanup:
 ### Manage kubernetes resources
 ##################################################
 
-# Apply the kubernetes resources defined in the manifests directory.
-kubectl-apply:
-  kubectl apply -f k8s/robco/manifest.yaml
-  kubectl -n robco get all
-
 # Forward the BE service port to localhost. Then go to http://localhost:8000 in your browser.
 kubectl-port-forward-be:
   kubectl -n robco port-forward svc/robot-service 8000:8000
@@ -170,10 +170,6 @@ kubectl-port-forward-be:
 # Forward the FE service port to localhost. Then go to http://localhost:3000 in your browser.
 kubectl-port-forward-fe:
   kubectl -n robco port-forward svc/robot-dashboard 3000:3000
-
-# Delete the kubernetes resources defined in the manifests directory.
-kubectl-delete:
-  kubectl delete -f k8s/robco/manifest.yaml
 
 ##################################################
 ### Manage Docker resources

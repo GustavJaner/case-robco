@@ -22,16 +22,24 @@ just --help
 
 _These are suggested installations. Adapt paths to suit your local environment. Tested on Mac (amd64)._
 
-### Initial Setup
+### Run the App
 1. Clone the repo.
 2. Run `just` to list the available commands.
-3. (Optional) Run `just setup-local-env` to create the local development environment (Install dependencies for the Python FastAPI backend (BE) and the React frontend (FE)).
-4. Run `just mk-start` to start the minikube cluster instance.
-5. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube Docker env.
-6. Run `just kubectl-apply` to apply the K8S resources to the minikube cluster (To namespace `robco`).
-7. Run `just mk-update-hosts` to add the K8S Ingress host names to /etc/hosts _with sudo_.
-8. Run `just mk-tunnel` to start minikube tunnel to the BE & FE ingresses.
-9. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
+
+#### (Optional) Local Development Setup
+1. Run `just setup-local-env` to create the local development environment (Installs dependencies for the Python FastAPI backend (BE) and the React frontend (FE)).
+2. Run `just py-run-be` to start the Python FastAPI BE locally.
+3. Run `just re-run-fe` to start the React FE locally.
+4. Go to http://localhost:3000 in your browser and try adding some robots in the UI 🤖
+   - http://localhost:8000/docs for FastAPI docs.
+
+#### minikube K8S Setup
+1. Run `just mk-start` to start the minikube cluster instance.
+2. Run `just mk-build-images` to build the Docker images for the BE & FE in the minikube Docker env.
+3. Run `just mk-apply-resources` to apply the K8S resources to the minikube cluster (To namespace `robco`).
+4. Run `just mk-update-hosts` to add the K8S Ingress host names to /etc/hosts _with sudo_.
+5. Run `just mk-tunnel` to start minikube tunnel to the BE & FE ingresses.
+6. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
    - http://robot-service.local/docs for FastAPI docs.
 
 ## Assumptions & Tradeoffs
@@ -40,6 +48,7 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 ## TODO
 - [ ] Add a proper SQL DB for the BE (Ensure the PATCH issue is fixed in K8S).
 - [ ] Deploy Loki and add logs to FE.
+- [ ] Fix standard structured logging.
 - [ ] Deploy Prometheus and add metrics to FE.
 - [ ] Add architecture overview diagrams (drawio).
 - [ ] Add notes on assumptions and tradeoffs
