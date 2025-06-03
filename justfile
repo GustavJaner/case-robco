@@ -192,13 +192,9 @@ mk-cleanup:
 ### Manage kubernetes resources
 ##################################################
 
-# Forward the BE service port to localhost.
-kubectl-port-forward-be:
-  kubectl -n robco port-forward svc/robot-service 8000:8000
-
-# Forward the FE service port to localhost.
-kubectl-port-forward-fe:
-  kubectl -n robco port-forward svc/robot-dashboard 3000:3000
+# kubectl execute a psql query in the postgres-db pod.
+kubectl-psql-query query="SELECT * FROM robots;":
+  kubectl exec -n robco $(kubectl get pod -n robco -l app=postgres-db -o jsonpath="{.items[0].metadata.name}") -- psql -U robotuser -d robotdb -c "{{query}}"
 
 ##################################################
 ### Manage Docker resources
