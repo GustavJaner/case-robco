@@ -1,8 +1,9 @@
-# # Defines Pydantic schemas for robots.
+# Defines Pydantic schemas for robots.
+# # These schemas are used for validating and serializing data in the API.
 from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 class RobotType(str, Enum):
   FOOBOT = "foo-bot"
@@ -15,7 +16,7 @@ class RobotStatus(str, Enum):
 
 # Defines the base schema for robots. Fields, types and default values.
 class RobotBase(BaseModel):
-  id: str = Field(default_factory=lambda: str(uuid4()))  # Auto-generate a new UUID for each robot.
+  id: UUID = Field(default_factory=uuid4) # Auto-generate a new UUID for each robot.
   name: str
   type: RobotType = RobotType.FOOBOT
   status: RobotStatus = RobotStatus.IDLE

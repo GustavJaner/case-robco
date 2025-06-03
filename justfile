@@ -25,11 +25,17 @@ default:
 
 # Set up Python BE and React FE for local development.
 setup-local-env:
+  # Create DB and user (If not exist).
+  psql postgres -c "CREATE USER robotuser WITH PASSWORD 'password';"
+  psql postgres -c "CREATE DATABASE robotdb OWNER robotuser;"
+  psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE robotdb TO robotuser;"
+  # Install Python BE dependencies and create .env file.
   cd {{PY_BE_DIR}} && \
   poetry config virtualenvs.in-project true && \
   poetry env info -n && \
   poetry sync && \
   just py-create-env-file
+  # Install React FE dependencies.
   cd {{RE_FE_DIR}} && \
   npm install
 
@@ -99,6 +105,11 @@ re-run-fe:
 re-test:
   cd {{RE_FE_DIR}} && \
   npm test
+
+# Cleanup local development environment.
+cleanup-local-env:
+  psql postgres -c "DROP DATABASE IF EXISTS robotdb;"
+  psql postgres -c "DROP USER IF EXISTS robotuser;"
 
 ##################################################
 ### Manage minikube cluster
