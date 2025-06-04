@@ -19,6 +19,7 @@ just --help
 ```
 4. [Docker](https://docs.docker.com/desktop/) v24.0.6
 5. [minikube](https://minikube.sigs.k8s.io/docs/start) v1.36
+6. [Helm](https://helm.sh/docs/intro/quickstart/#install-helm) v3.18.0
 
 _These are suggested installations. Adapt paths to suit your local environment. Tested on Mac (amd64)._
 
@@ -40,16 +41,90 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 4. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
    - http://robot-service.local/docs for FastAPI docs.
 
+## Architecture
+![Architecture Diagram](docs/architecture.drawio.svg)
+
+### Backend API Endpoints
+| Method  | Endpoint         | Description                 |
+|---------|------------------|-----------------------------|
+| `GET`   | /robots          | Get all robots.             |
+| `POST`  | /robots          | Create a new robot.         |
+| `PATCH` | /robot/{robot_id}| Update an existing robot.   |
+
+### Repository Structure
+<details>
+  <summary>Repo directory tree.</summary>
+
+```
+.
+├── justfile
+├── README.md
+├── docs/
+│   └── architecture.drawio.svg
+├── k8s/
+│   ├── monitoring/
+│   │   ├── values-grafana.yaml
+│   │   ├── values-loki.yaml
+│   │   ├── values-prometheus.yaml
+│   │   └── values-promtail.yaml
+│   └── robco/
+│       ├── namespace.yaml
+│       ├── postgres-db.yaml
+│       ├── robot-dashboard.yaml
+│       └── robot-service.yaml
+├── python-be/
+│   ├── Dockerfile
+│   ├── poetry.lock
+│   ├── pyproject.toml
+│   └── app/
+│       ├── __init__.py
+│       ├── config.py
+│       ├── database.py
+│       ├── init_db.py
+│       ├── main.py
+│       ├── models/
+│       │   └── robot.py
+│       ├── routers/
+│       │   ├── __init__.py
+│       │   └── v1/
+│       │       ├── __init__.py
+│       │       ├── health.py
+│       │       └── robots.py
+│       ├── schemas/
+│       │   └── robot.py
+│       └── tests/
+│           └── v1/
+│               ├── test_main.py
+│               └── test_robots.py
+├── react-fe/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   ├── README.md
+│   ├── public/
+│   │   ├── index.html
+│   │   └── manifest.json
+│   └── src/
+│       ├── api.js
+│       ├── App.css
+│       ├── App.js
+│       ├── App.test.js
+│       ├── index.css
+│       ├── index.js
+│       ├── reportWebVitals.js
+│       └── setupTests.js
+```
+</details>
+
 ## Assumptions & Tradeoffs
-- TODO
+- Assume this is a development env only (No auth, no replicas etc.)
 
 ## TODO
 - [ ] Fix BE tests with DB.
-- [ ] Deploy Loki and add logs to FE.
 - [ ] Fix standard structured logging.
-- [ ] Deploy Prometheus and add metrics to FE.
-- [ ] Add architecture overview diagrams (drawio).
-- [ ] Add notes on assumptions and tradeoffs
+- [ ] Expose a /metrics endpoint for the BE (Counter: number of robots added, Histogram or summary: request durations).
+- [ ] Add logs to FE.
+- [ ] Add metrics to FE.
 
 ### Improvements
 - [ ] Add pre-commit.
