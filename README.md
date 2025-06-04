@@ -36,7 +36,7 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 
 #### minikube K8S Setup
 1. Run `just mk-start` to start the minikube cluster instance.
-2. Run `just mk-deploy-app` to build the Docker images for the BE & FE in the minikube Docker env and apply the K8S resources to the minikube cluster (To namespace `robco`).
+2. Run `just mk-deploy-app` to build the Docker images for the BE & FE in the minikube Docker env and apply the K8S resources to the minikube cluster (To namespace `robco` & `monitoring`).
 3. Run `just mk-host-tunnel` to add the K8S Ingress host names to /etc/hosts _with sudo_ and start minikube tunnel to the BE & FE ingresses.
 4. Go to http://robot-dashboard.local in your browser and try adding some robots in the UI 🤖
    - http://robot-service.local/docs for FastAPI docs.

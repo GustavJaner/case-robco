@@ -197,6 +197,7 @@ mk-cleanup:
 kubectl-psql-query query="SELECT * FROM robots;":
   kubectl exec -n robco $(kubectl get pod -n robco -l app=postgres-db -o jsonpath="{.items[0].metadata.name}") -- psql -U robotuser -d robotdb -c "{{query}}"
 
+# Helm install the monitoring stack (Prometheus, Loki, Grafana) in the minikube cluster.
 helm-install:
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm repo add grafana https://grafana.github.io/helm-charts
@@ -206,6 +207,7 @@ helm-install:
   helm upgrade --install promtail -n monitoring grafana/promtail --version 6.17.0 -f k8s/monitoring/values-promtail.yaml
   helm upgrade --install grafana -n monitoring grafana/grafana --version 9.2.2 -f k8s/monitoring/values-grafana.yaml
 
+# Helm update the monitoring stack (Prometheus, Loki, Grafana) in the minikube cluster.
 helm-update:
   helm upgrade --install prometheus -n monitoring prometheus-community/kube-prometheus-stack --version 73.1.0 -f k8s/monitoring/values-prometheus.yaml
   helm upgrade --install loki -n monitoring grafana/loki --version 6.30.1 -f k8s/monitoring/values-loki.yaml
