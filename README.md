@@ -60,3 +60,5 @@ _These are suggested installations. Adapt paths to suit your local environment. 
 - [ ] Add tests for the React FE.
 - [ ] Structure and utilize the python .env file and config.py better.
 - [ ] Add retry logic to Python FastAPI DB init with exponential backoff to avoid pod failure until DB pod is ready.
+- [ ] Add proper auth for components.
+- [ ] Deploy and manage K8S resources with ArgoCD.

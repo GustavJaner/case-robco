@@ -50,6 +50,7 @@ metadata:
   name: postgres-db
   namespace: robco
 spec:
+  type: ClusterIP # Access Scope: Internal to the cluster only. Exposes the service on a virtual IP inside the cluster.
   ports:
   - port: 5432
   selector:

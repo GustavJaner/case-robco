@@ -1,0 +1,67 @@
+# https://github.com/grafana/helm-charts/tree/main/charts/grafana
+adminUser: admin
+adminPassword: password
+serviceAccount:
+  create: false
+replicas: 1
+resources:
+  limits:
+    memory: 1Gi
+  requests:
+    cpu: 25m
+    memory: 0.25Gi
+service:
+  type: ClusterIP # TODO
+ingress:
+  enabled: false
+  hosts:
+    - grafana.local
+serviceMonitor:
+  enabled: true
+  path: /metrics
+
+persistence:
+  enabled: true
+  type: pvc
+  size: 2Gi
+  port: 80
+  targetPort: 3000
+  # storageClassName: default
+
+# datasources:
+#   datasources.yaml:
+#     apiVersion: 1
+#     datasources:
+#     - name: prometheus
+#       type: prometheus
+#       uid: prometheus
+#       isDefault: true
+#       editable: true
+#       access: proxy # Access mode - proxy (server in the UI) or direct (browser in the UI).
+#       url: http://prometheus-kube-prometheus-prometheus.monitoring:9090
+#       jsonData:
+#         httpMethod: POST
+#         queryTimeout: 30s
+#         timeInterval: 5s
+#         manageAlerts: true
+#         prometheusType: Prometheus
+#         # prometheusVersion: "2.50.x" # Todo
+#         cacheLevel: None
+#         disableRecordingRules: false
+#         # incrementalQueryOverlapWindow: 10m
+#     - name: loki
+#       type: loki
+#       uid: loki
+#       editable: true
+#       access: proxy
+#       url: http://loki.monitoring:3100
+#       basicAuth: false
+#       jsonData:
+#         httpTimeout: 30s
+
+# [auth]
+# disable_login_form = true # faster during development
+
+# [auth.anonymous]
+# enabled = true # enable anonymous access
+# org_role = Admin # role for anonymous user

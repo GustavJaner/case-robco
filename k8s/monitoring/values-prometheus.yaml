@@ -1,0 +1,81 @@
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+grafana:
+  enabled: false
+
+prometheusOperator: # Manages Prometheus and Alertmanager components.
+  enabled: true
+  resources:
+    limits:
+      memory: 0.5Gi
+    requests:
+      cpu: 10m
+      memory: 0.1Gi
+
+prometheus:
+  enabled: true
+  serviceAccount:
+    create: false
+  prometheusSpec:
+    scrapeInterval: "15s"
+    scrapeTimeout: "10s"
+    externalLabels: {} # External labels to add to any time series or alerts when communicating with external systems
+    replicaExternalLabelName: "" # Name of the external label used to denote replica name.
+    storageSpec: {}
+    retention: 10d # How long to retain metrics.
+    retentionSize: "" # # Maximum size of metrics to retain.
+    logLevel: info
+    additionalScrapeConfigs: []
+    overrideHonorTimestamps: false # Globally enforce honoring timestamps in all scrape configs.
+    maximumStartupDurationSeconds: 60 # Maximum time to wait for Prometheus to start up..
+    replicas: 1
+    resources:
+      limits:
+        memory: 3Gi
+      requests:
+        cpu: 100m
+        memory: 0.2Gi
+
+alertmanager:
+  serviceAccount:
+    create: true
+  config:
+    route:
+      group_by: ['namespace', 'severity', 'alertname']
+      receiver: 'null' # Root receiver.
+      # Permanently muted alerts:
+      routes:
+      - receiver: 'null'
+        matchers:
+          - alertname = "Watchdog"
+    receivers:
+    - name: 'null'
+  templateFiles: {}
+  alertmanagerSpec:
+    replicas: 1
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        cpu: 10m
+        memory: 0.1Gi
+
+nodeExporter: # Deploy node exporter as a daemonset to all nodes.
+  enabled: true
+kubeApiServer: # Component scraping the kube api server.
+  enabled: true
+kubelet: # Component scraping the kubelet and kubelet-hosted cAdvisor.
+  enabled: true
+kubeControllerManager: # Component scraping the kube controller manager.
+  enabled: true
+coreDns: # Component scraping coreDns. Use either this or kubeDns.
+  enabled: true
+kubeDns: # Component scraping kubeDns. Use either this or coreDns.
+  enabled: false
+kubeEtcd:
+  enabled: true # Component scraping etcd.
+kubeScheduler: # Component scraping kube scheduler.
+  enabled: true
+kubeProxy:
+  enabled: true # Component scraping kube proxy.
+kubeStateMetrics: # Component scraping kube state metrics.
+  enabled: true

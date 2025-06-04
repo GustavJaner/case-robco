@@ -37,7 +37,7 @@ metadata:
 spec:
   selector:
     app: robot-dashboard
-  type: NodePort
+  type: NodePort # Access Scope: External access on a static port on each node. External traffic can reach the service using <NodeIP>:<NodePort>. For basic external access during development, testing.
   ports:
   - port: 3000
     protocol: TCP
